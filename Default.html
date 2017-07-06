@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>David</title>
-	<link rel="shortcut icon" href="images/ruth.png" />
+	<link rel="shortcut icon" href="images/david.png" />
     <style>
         canvas {
             border: 1px solid #d3d3d3;
@@ -12,10 +12,213 @@
     </style>
 </head>
 <body onload="startGame()">
+<img id="david" width="100" height="78" src="images/david.png" alt="David">
+<img id="eggplant" width="100" height="100" src="images/eggplant.png" alt="eggplant">
 <script>
-function startGame() {}
+
+    var myGamePiece;
+    var numberOfFires = 5;
+    var myFires = [];
+    var currentFire;
+    var canvasWidth = 880;
+    var canvasHeight = 470;
+
+function startGame() {
+   
+    myGamePiece = new component(100, 78, "red", 0, canvasHeight - 78, "image", document.getElementById("david"));
+    currentFire = new component(100, 78, "red", 0, 0, "image", document.getElementById("eggplant"));
+
+    //right
+    document.addEventListener("keyup", function (event) {
+                if (event.which == 39) {
+                    accelerate(0.01);
+                }
+            });
+			
+	//left
+    document.addEventListener("keyup", function (event) {
+                if (event.which == 37) {
+                    accelerate(-0.02);
+                }
+            });
+
+    //fire
+	document.addEventListener("keypress", function (event) {
+               if (event.which == 32) {
+                   shoot();
+				}
+            });
 
 
+    myGameArea.start();
+}
+
+ var myGameArea = {
+            canvas: document.createElement("canvas"),
+            start: function () {
+                this.canvas.width = canvasWidth;
+                this.canvas.height = canvasHeight;
+                this.context = this.canvas.getContext("2d");
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                this.frameNo = 0;
+                this.interval = setInterval(updateGameArea, 20);
+            },
+            clear: function () {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+        }
+
+function component(width, height, color, x, y, type, image) {
+            this.type = type;
+            this.width = width;
+            this.height = height;
+            this.x = x;
+            this.y = y;
+            this.gravity = 0;
+            this.gravitySpeed = 0;
+            this.image = image;
+            this.acceleration = 0;
+            this.horizentalSpeed = 0;
+            this.update = function () {
+                ctx = myGameArea.context;
+                if (this.type == "text") {
+                    ctx.font = this.width + " " + this.height;
+                    ctx.fillStyle = color;
+                    ctx.fillText(this.text, this.x, this.y);
+                } else if (this.type == "color") {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.drawImage(this.image, this.x, this.y);
+                }
+            }
+
+            this.newPos = function () {
+                if (this.gravity != 0) {
+
+                    this.y += this.gravitySpeed + this.gravity;
+                }
+                if (this.acceleration > 0) {
+                    this.horizentalSpeed += this.acceleration;
+                    this.x += this.horizentalSpeed;
+                   // console.log(this.x);
+                }
+                if (this.acceleration < 0) {
+                    this.horizentalSpeed += Math.abs(this.acceleration);
+                    this.x -= this.horizentalSpeed;
+                   // console.log(this.x);
+                }
+                this.hitRight();
+                this.hitLeft();
+            }
+
+			this.remove = function () {
+            	this.x = 1000;
+				this.y = 1000;
+				this.update();
+			}
+
+            this.hitRight = function () {
+                var rockright = myGameArea.canvas.width - this.width;
+                if (this.x > rockright) {
+                    this.x = rockright;
+                    this.gravitySpeed = 0;
+                    this.horizentalSpeed = 0;
+                    this.acceleration = 0;
+                }
+            }
+
+            this.hitLeft = function () {
+                if (this.x < 0) {
+                    this.x = 0;
+                    this.gravitySpeed = 0;
+                    this.horizentalSpeed = 0;
+                    this.acceleration = 0;
+                }
+            }
+		
+
+
+            this.crashWith = function (otherobj) {
+                var myleft = this.x;
+                var myright = this.x + (this.width);
+                var mytop = this.y;
+                var mybottom = this.y + (this.height);
+                var otherleft = otherobj.x;
+                var otherright = otherobj.x + (otherobj.width);
+                var othertop = otherobj.y;
+                var otherbottom = otherobj.y + (otherobj.height);
+                var crash = true;
+                if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+                    crash = false;
+                }
+                return crash;
+            }
+		}
+		
+		
+function updateGameArea() {
+             var x, width, minWidth, maxWidth;
+            
+            for (i = 0; i < myFires.length; i += 1) {
+                if (myGamePiece.crashWith(myFires[i])) {
+                    catchedBonuses += 1;
+                    myFires[i].remove();
+
+                }
+            }
+			
+            myGameArea.clear();
+			
+            myGameArea.frameNo += (1 * Math.max(1, Math.round(myGameArea.frameNo/1000)));
+            if (myGameArea.frameNo == 1 || everyinterval(150)) {
+                x = myGameArea.canvas.width;
+                minWidth = 20;
+                maxWidth = 200;
+                width = Math.floor(Math.random() * (maxWidth - minWidth + 1) + minWidth);
+              
+            }
+			if ( everyinterval(1000)) {
+              
+			  }
+
+            if (myGameArea.frameNo == 1 || everyinterval(670)) {
+                //x = myGameArea.canvas.width + Math.floor((Math.random() * 100) + 120);
+               // minWidth = 20;
+               // maxWidth = 200;
+               // height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
+               // y = Math.floor((Math.random() * 200) + 20);
+
+               // myBonuses.push(new component(10, height, "pink", x, y, "image", bonusesImages[Math.floor(Math.random() * bonusesImages.length)]));
+
+            }
+            		
+			for (i = 0; i < myFires.length; i += 1) {
+                myFires[i].y +=8;
+				myFires[i].update();
+            }
+
+           currentFire.newPos();
+           currentFire.update();
+            
+            myGamePiece.newPos();
+            myGamePiece.update();
+        }
+		
+    function everyinterval(n) {
+            if ((myGameArea.frameNo / n) % 1 == 0) { return true; }
+            return false;
+        }
+
+    function accelerate(n) {
+        currentFire.acceleration += n;
+    }
+
+    function shoot() {
+        var fire = new component(10, myGamePiece.height, "pink", myGamePiece.x + myGamePiece.width, myGamePiece.y, "image", document.getElementById("eggplant"));
+        fire.gravitySpeed = 10;
+        myFires.push(fire);
+    }
 </script>
 </body>
 </html>
