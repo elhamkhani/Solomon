@@ -12,7 +12,7 @@
     </style>
 </head>
 <body onload="startGame()">
-<img id="david" width="100" height="78" src="images/david.png" alt="David">
+<img id="david" width="100" height="116" src="images/david.jpg" alt="David">
 <img id="eggplant" width="100" height="100" src="images/eggplant.png" alt="eggplant">
 <script>
 
@@ -25,20 +25,22 @@
 
 function startGame() {
    
-    myGamePiece = new component(100, 78, "red", 0, canvasHeight - 78, "image", document.getElementById("david"));
+    myGamePiece = new component(100, 116, "red", 0, canvasHeight - 116, "image", document.getElementById("david"));
+    myGamePiece.accelerate = 1;
+
     currentFire = new component(100, 78, "red", 0, 0, "image", document.getElementById("eggplant"));
 
     //right
     document.addEventListener("keyup", function (event) {
                 if (event.which == 39) {
-                    accelerate(0.01);
+                    currentFire.accelerate(0.01,0);
                 }
             });
 			
 	//left
     document.addEventListener("keyup", function (event) {
                 if (event.which == 37) {
-                    accelerate(-0.02);
+                    currentFire.accelerate(-0.02,0);
                 }
             });
 
@@ -154,6 +156,11 @@ function component(width, height, color, x, y, type, image) {
                 }
                 return crash;
             }
+
+            this.accelerate =  function (a, g) {
+                this.acceleration += a;
+                this.gravity += g;
+            }
 		}
 		
 		
@@ -162,7 +169,7 @@ function updateGameArea() {
             
             for (i = 0; i < myFires.length; i += 1) {
                 if (myGamePiece.crashWith(myFires[i])) {
-                    catchedBonuses += 1;
+                   
                     myFires[i].remove();
 
                 }
@@ -190,17 +197,18 @@ function updateGameArea() {
                // y = Math.floor((Math.random() * 200) + 20);
 
                // myBonuses.push(new component(10, height, "pink", x, y, "image", bonusesImages[Math.floor(Math.random() * bonusesImages.length)]));
-
+                myGamePiece.accelerate = Math.random() * 1 +1 ;
+               
             }
-            		
+
 			for (i = 0; i < myFires.length; i += 1) {
-                myFires[i].y +=8;
+                myFires[i].newPos(0, 1);
 				myFires[i].update();
             }
 
            currentFire.newPos();
            currentFire.update();
-            
+
             myGamePiece.newPos();
             myGamePiece.update();
         }
@@ -210,14 +218,21 @@ function updateGameArea() {
             return false;
         }
 
-    function accelerate(n) {
-        currentFire.acceleration += n;
-    }
+  
 
     function shoot() {
-        var fire = new component(10, myGamePiece.height, "pink", myGamePiece.x + myGamePiece.width, myGamePiece.y, "image", document.getElementById("eggplant"));
-        fire.gravitySpeed = 10;
-        myFires.push(fire);
+        debugger;
+        if (numberOfFires > 0) {
+            numberOfFires -= 1;
+            var fire = new component(currentFire.width, currentFire.height, "pink", currentFire.x , currentFire.y + currentFire.height, "image", document.getElementById("eggplant"));
+            fire.gravity = 1;
+            fire.gravitySpeed = 10;
+            myFires.push(fire);
+            if (numberOfFires == 0)
+            {
+                currentFire.remove();
+            }
+        }
     }
 </script>
 </body>
