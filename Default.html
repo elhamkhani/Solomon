@@ -22,6 +22,8 @@
     var currentFire;
     var canvasWidth = 880;
     var canvasHeight = 470;
+	var myScrore =0;
+	var myScroreText;
 
 function startGame() {
    
@@ -29,11 +31,14 @@ function startGame() {
     myGamePiece.acceleration = Math.random() * 1 +1 ;
 	
     currentFire = new component(100, 78, "red", 0, 0, "image", document.getElementById("eggplant"));
-
+	currentFire.accelerate(0.01,0);
+	
+	myScroreText = new component("30px", "Consolas", "navy", 250, 40, "text");
+	
     //right
     document.addEventListener("keyup", function (event) {
                 if (event.which == 39) {
-                    currentFire.accelerate(0.01,0);
+                    currentFire.accelerate(0.02,0);
                 }
             });
 			
@@ -171,7 +176,7 @@ function updateGameArea() {
                 if (myGamePiece.crashWith(myFires[i])) {
                    
                     myFires[i].remove();
-
+myScrore++;
                 }
             }
 			
@@ -185,20 +190,9 @@ function updateGameArea() {
                 width = Math.floor(Math.random() * (maxWidth - minWidth + 1) + minWidth);
               
             }
-			if ( everyinterval(1000)) {
-              
-			  }
-
-            if (myGameArea.frameNo == 1 || everyinterval(20)) {
-                //x = myGameArea.canvas.width + Math.floor((Math.random() * 100) + 120);
-               // minWidth = 20;
-               // maxWidth = 200;
-               // height = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
-               // y = Math.floor((Math.random() * 200) + 20);
-
-               // myBonuses.push(new component(10, height, "pink", x, y, "image", bonusesImages[Math.floor(Math.random() * bonusesImages.length)]));
-			//	debugger; 
-			  myGamePiece.acceleration = Math.random() < 0.5 ? (Math.random() * 0.5 +0.5):(Math.random() * -0.5 -0.5) ;
+			
+            if (everyinterval(20)) {
+              myGamePiece.acceleration = Math.random() < 0.5 ? (Math.random() * 0.2 +0.2):(Math.random() * -0.2 -0.2) ;
                
             }
 
@@ -212,6 +206,9 @@ function updateGameArea() {
 
             myGamePiece.newPos();
             myGamePiece.update();
+			
+			myScroreText.text = myScrore;
+            myScroreText.update();
         }
 		
     function everyinterval(n) {
