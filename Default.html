@@ -12,40 +12,44 @@
     </style>
 </head>
 <body onload="startGame()">
-<img id="david" width="100" height="116" src="images/david.jpg" alt="David">
-<img id="eggplant" width="69" height="100" src="images/eggplant.png" alt="eggplant">
+<img id="david" width="100" height="116" src="images/david.jpg" alt="David" style="display:none;">
+<img id="eggplant" width="69" height="100" src="images/eggplant.png" alt="eggplant" style="display:none;">
+<img id="dragon" width="100" height="78" src="images/ruth.png" alt="ruth" style="display:none;">
 <script>
 
     var myGamePiece;
     var numberOfFires = 5;
     var myFires = [];
     var currentFire;
-    var canvasWidth = 880;
-    var canvasHeight = 470;
+    var canvasWidth = screen.width -20;
+    var canvasHeight = 500;
 	var myScrore =0;
 	var myScroreText;
+	var dragon;
 
 function startGame() {
    
-    myGamePiece = new component(100, 116, "red", 0, canvasHeight - 116, "image", document.getElementById("david"));
+    myGamePiece = new component(100, 116, "red", canvasWidth/2, canvasHeight - 116, "image", document.getElementById("david"));
     myGamePiece.acceleration = Math.random() * 1 +1 ;
+
+	dragon = new component(100, 78, "red", 100, canvasHeight/3, "image", document.getElementById("dragon"));
 	
-    currentFire = new component(100, 78, "red", 0, 0, "image", document.getElementById("eggplant"));
+    currentFire = new component(100, 78, "red", 0, 50, "image", document.getElementById("eggplant"));
 	currentFire.accelerate(0.01,0);
 	
-	myScroreText = new component("30px", "Consolas", "navy", 250, 40, "text");
+	myScroreText = new component("30px", "Consolas", "navy", 20, 40, "text");
 	
     //right
-    document.addEventListener("keyup", function (event) {
+    document.addEventListener("keydown", function (event) {
                 if (event.which == 39) {
-                    currentFire.accelerate(0.02,0);
+                    currentFire.accelerate(0.01,0);
                 }
             });
 			
 	//left
-    document.addEventListener("keyup", function (event) {
+    document.addEventListener("keydown", function (event) {
                 if (event.which == 37) {
-                    currentFire.accelerate(-0.02,0);
+                    currentFire.accelerate(-0.01,0);
                 }
             });
 
@@ -163,7 +167,10 @@ function component(width, height, color, x, y, type, image) {
             }
 
             this.accelerate =  function (a, g) {
-                this.acceleration += a;
+				if(Math.sign(this.acceleration) !=0 && Math.sign(this.acceleration) != Math.sign(a))
+					this.acceleration = a;
+				else
+					this.acceleration += a;
                 this.gravity += g;
             }
 		}
@@ -195,6 +202,8 @@ myScrore++;
               myGamePiece.acceleration = Math.random() < 0.5 ? (Math.random() * 0.2 +0.2):(Math.random() * -0.2 -0.2) ;
                
             }
+			
+			
 
 			for (i = 0; i < myFires.length; i += 1) {
                 myFires[i].newPos(0, 1);
@@ -207,7 +216,7 @@ myScrore++;
             myGamePiece.newPos();
             myGamePiece.update();
 			
-			myScroreText.text = myScrore;
+			myScroreText.text = "Score: "+myScrore;
             myScroreText.update();
         }
 		
