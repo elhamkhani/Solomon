@@ -12,7 +12,8 @@
     </style>
 </head>
 <body onload="startGame()">
-<img id="david" width="100" height="116" src="images/david.jpg" alt="David" style="display:none;">
+<img id="david" width="100" height="100" src="images/davidB.jpg" alt="David" style="display:none;">
+<img id="davidA" width="100" height="100" src="images/davidA.jpg" alt="David" style="display:none;">
 <img id="eggplant" width="69" height="100" src="images/eggplant.png" alt="eggplant" style="display:none;">
 <img id="dragon" width="100" height="78" src="images/ruth.png" alt="ruth" style="display:none;">
 <script>
@@ -23,21 +24,24 @@
     var currentFire;
     var canvasWidth = screen.width -20;
     var canvasHeight = 500;
-	var myScrore =0;
-	var myScroreText;
+	var myScore = 0;
+	var myScoreText;
 	var dragon;
+	var afterHit = 0;
+	var theEnd;
 
 function startGame() {
    
-    myGamePiece = new component(100, 116, "red", canvasWidth/2, canvasHeight - 116, "image", document.getElementById("david"));
+    myGamePiece = new component(100, 100, "red", canvasWidth/2, canvasHeight - 100, "image", document.getElementById("david"));
     myGamePiece.acceleration = Math.random() * 1 +1 ;
 
 	dragon = new component(100, 78, "red", 100, canvasHeight/3, "image", document.getElementById("dragon"));
 	
-    currentFire = new component(100, 78, "red", 0, 50, "image", document.getElementById("eggplant"));
+    currentFire = new component(69, 100, "red", 0, 50, "image", document.getElementById("eggplant"));
 	currentFire.accelerate(0.01,0);
 	
-	myScroreText = new component("30px", "Consolas", "navy", 20, 40, "text");
+	myScoreText = new component("30px", "Consolas", "navy", 20, 40, "text");
+	theEnd = new component("100px", "Consolas", "navy", 0, canvasHeight/2, "text");
 	
     //right
     document.addEventListener("keydown", function (event) {
@@ -76,7 +80,21 @@ function startGame() {
             },
             clear: function () {
                 this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            }
+            },
+			end: function(){
+			 this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+				currentFire.remove();
+				myGamePiece.remove();
+				theEnd.text = "Goodbye Solomon!";
+					for(j=0;j<myScore;j++)
+					{
+						var eggplant = new component(69, 100, "red", 100*j, canvasHeight/2 + 10, "image", document.getElementById("eggplant"));
+						eggplant.update();
+					}
+					
+					clearInterval(this.interval);
+					theEnd.update();
+				}
         }
 
 function component(width, height, color, x, y, type, image) {
@@ -100,7 +118,7 @@ function component(width, height, color, x, y, type, image) {
                     ctx.fillStyle = color;
                     ctx.fillRect(this.x, this.y, this.width, this.height);
                 } else {
-                    ctx.drawImage(this.image, this.x, this.y);
+                    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
                 }
             }
 
@@ -148,8 +166,6 @@ function component(width, height, color, x, y, type, image) {
                 }
             }
 		
-
-
             this.crashWith = function (otherobj) {
                 var myleft = this.x;
                 var myright = this.x + (this.width);
@@ -179,14 +195,24 @@ function component(width, height, color, x, y, type, image) {
 function updateGameArea() {
              var x, width, minWidth, maxWidth;
             
-            for (i = 0; i < myFires.length; i += 1) {
+            for (i = 0; i < myFires.length; i++) {
                 if (myGamePiece.crashWith(myFires[i])) {
-                   
                     myFires[i].remove();
-myScrore++;
-                }
+					myScore++;
+					myGamePiece.image = document.getElementById("davidA");
+					afterHit++;
+				}
+				
             }
-			
+			if(afterHit > 0)
+			{
+				afterHit++;
+				if(afterHit>200)
+				{
+					myGamePiece.image = document.getElementById("david");
+					afterHit=0;
+				}
+			}	
             myGameArea.clear();
 			
             myGameArea.frameNo += (1 * Math.max(1, Math.round(myGameArea.frameNo/1000)));
@@ -199,11 +225,10 @@ myScrore++;
             }
 			
             if (everyinterval(20)) {
-              myGamePiece.acceleration = Math.random() < 0.5 ? (Math.random() * 0.2 +0.2):(Math.random() * -0.2 -0.2) ;
+              myGamePiece.acceleration = Math.random() < 0.5 ? (Math.random() * 0.1 +0.1):(Math.random() * -0.1 -0.1) ;
                
             }
-			
-			
+				
 
 			for (i = 0; i < myFires.length; i += 1) {
                 myFires[i].newPos(0, 1);
@@ -216,8 +241,10 @@ myScrore++;
             myGamePiece.newPos();
             myGamePiece.update();
 			
-			myScroreText.text = "Score: "+myScrore;
-            myScroreText.update();
+			myScoreText.text = "Score: "+myScore;
+            myScoreText.update();
+			
+			
         }
 		
     function everyinterval(n) {
@@ -236,10 +263,11 @@ myScrore++;
             myFires.push(fire);
             if (numberOfFires == 0)
             {
-                currentFire.remove();
+               myGameArea.end();
             }
         }
     }
+	
 </script>
 </body>
 </html>
